@@ -12,7 +12,7 @@ public class Oscillator {
 	/** This is the moving-current volume we actually use. */
 	protected float volumeScramble = 0.0f;
 	
-	protected float frequency = 440.0f;
+	protected float frequency = 440.0f; //TODO: for *speech* it may actually be desirable to scramble-to-frequency (portamento)
 	protected float cyclesPerSample;
 	protected float wavePos = 0f;
 	

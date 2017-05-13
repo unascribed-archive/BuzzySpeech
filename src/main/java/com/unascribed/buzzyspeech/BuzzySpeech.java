@@ -8,6 +8,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
 
 import com.google.common.collect.ImmutableList;
+import com.unascribed.buzzyspeech.synth.Note;
 import com.unascribed.buzzyspeech.synth.Oscillator;
 import com.unascribed.buzzyspeech.synth.Waveform;
 
@@ -24,7 +25,7 @@ public class BuzzySpeech {
 		sdl.open(af);
 		sdl.start();
 		
-		float volume = 0.35f;
+		float volume = 0.25f; //0.35f;
 		
 		float[] samples = new float[512];
 		byte[] buf = new byte[512];
@@ -79,15 +80,26 @@ public class BuzzySpeech {
 	public static final Formant SILENCE = Formant.builder().build();
 	
 	public static final Formant NOTE_A4 = Formant.builder()
-			.harmonic(Waveform.SINE, 440, 0)
+			.harmonic(Waveform.SAW, Note.getFrequency( 9, 4), 0)
+			.harmonic(Waveform.SQUARE, Note.getFrequency( 9, 1), 0)
 			.build();
 	
 	public static final Formant NOTE_B4 = Formant.builder()
-			.harmonic(Waveform.SAW, 493.883f , 0)
+			.harmonic(Waveform.SAW, Note.getFrequency(11, 4) , 0)
+			.harmonic(Waveform.SQUARE, Note.getFrequency( 9, 2), 0)
 			.build();
 	
 	public static final Formant NOTE_C5 = Formant.builder()
-			.harmonic(Waveform.SQUARE, 523.251f , 0)
+			.harmonic(Waveform.SAW, Note.getFrequency( 0, 5) , 0)
+			.build();
+	
+	public static final Formant NOTE_D5 = Formant.builder()
+			.harmonic(Waveform.SAW, Note.getFrequency( 2, 5) , 0)
+			.harmonic(Waveform.SQUARE, Note.getFrequency( 9, 2), 0)
+			.build();
+	
+	public static final Formant NOTE_E5 = Formant.builder()
+			.harmonic(Waveform.SAW, Note.getFrequency( 4, 5) , 0)
 			.build();
 	
 	public static final Formant A = Formant.builder()
@@ -161,6 +173,6 @@ public class BuzzySpeech {
 			.build();
 	
 	
-	private static final ImmutableList<Formant> CYCLE = ImmutableList.of(NOTE_A4, NOTE_B4, NOTE_C5, SILENCE, NOTE_A4, NOTE_B4, NOTE_C5, SILENCE, SILENCE, SILENCE, SILENCE);
+	private static final ImmutableList<Formant> CYCLE = ImmutableList.of(NOTE_A4, SILENCE, NOTE_B4, SILENCE, NOTE_C5, SILENCE, NOTE_D5, SILENCE, NOTE_E5, SILENCE, NOTE_B4, SILENCE, NOTE_C5, SILENCE, NOTE_D5, SILENCE );
 
 }
