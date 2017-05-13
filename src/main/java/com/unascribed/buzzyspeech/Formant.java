@@ -1,29 +1,17 @@
 package com.unascribed.buzzyspeech;
 
+import java.util.ArrayList;
+
+import com.unascribed.buzzyspeech.synth.Waveform;
+
 public class Formant {
 	
-	public final int frequencyA;
-	public final float volumeA;
-	public final int frequencyB;
-	public final float volumeB;
-	public final int frequencyC;
-	public final float volumeC;
-	public final int frequencyD;
-	public final float volumeD;
-	
-	public final float volumeNoise;
+	protected ArrayList<Harmonic> harmonics = new ArrayList<>();
+	protected final float volumeNoise;
 
-	private Formant(int frequencyA, float volumeA, int frequencyB, float volumeB,
-			int frequencyC, float volumeC, int frequencyD, float volumeD,
-			float volumeNoise) {
-		this.frequencyA = frequencyA;
-		this.volumeA = volumeA;
-		this.frequencyB = frequencyB;
-		this.volumeB = volumeB;
-		this.frequencyC = frequencyC;
-		this.volumeC = volumeC;
-		this.frequencyD = frequencyD;
-		this.volumeD = volumeD;
+	
+	private Formant(ArrayList<Harmonic> harmonics, float volumeNoise) {
+		this.harmonics = harmonics;
 		this.volumeNoise = volumeNoise;
 	}
 	
@@ -32,41 +20,18 @@ public class Formant {
 	}
 	
 	public static final class Builder {
-		
-		private int frequencyA;
-		private float volumeA;
-		private int frequencyB;
-		private float volumeB;
-		private int frequencyC;
-		private float volumeC;
-		private int frequencyD;
-		private float volumeD;
-		
+		private ArrayList<Harmonic> harmonics = new ArrayList<>();
 		private float volumeNoise;
 		
 		private Builder() {}
 		
-		public Builder a(int freq, int db) {
-			this.frequencyA = freq;
-			this.volumeA = (float) Math.pow(10, db/10f);
+		public Builder harmonic(float freq, float db) {
+			harmonics.add(new Harmonic(freq, (float) Math.pow(10, db/10f)));
 			return this;
 		}
 		
-		public Builder b(int freq, int db) {
-			this.frequencyB = freq;
-			this.volumeB = (float) Math.pow(10, db/10f);
-			return this;
-		}
-		
-		public Builder c(int freq, int db) {
-			this.frequencyC = freq;
-			this.volumeC = (float) Math.pow(10, db/10f);
-			return this;
-		}
-		
-		public Builder d(int freq, int db) {
-			this.frequencyD = freq;
-			this.volumeD = (float) Math.pow(10, db/10f);
+		public Builder harmonic(Waveform wave, float freq, float db) {
+			harmonics.add(new Harmonic(wave, freq, (float) Math.pow(10, db/10f)));
 			return this;
 		}
 		
@@ -75,13 +40,43 @@ public class Formant {
 			return this;
 		}
 		
-		
 		public Formant build() {
-			float mod = volumeNoise > 0 ? 1 : (1/volumeA);
-			return new Formant(frequencyA, volumeA*mod, frequencyB, volumeB*mod, frequencyC, volumeC*mod, frequencyD, volumeD*mod, volumeNoise);
+			
+			if (volumeNoise<=0 && !harmonics.isEmpty()) {
+				//There are harmonics and no noise channel. Boost the harmonics so at least one has full volume
+				float maxVolume = 0f;
+				for(Harmonic harmonic : harmonics) {
+					maxVolume = Math.max(maxVolume, harmonic.volume);
+				}
+				
+				float volumeScale = 1f/maxVolume;
+				
+				for(Harmonic harmonic : harmonics) {
+					harmonic.volume *= volumeScale;
+				}
+			}
+			
+			
+			return new Formant(harmonics, volumeNoise);
 		}
 		
 	}
 	
-	
+	public static class Harmonic {
+		public float frequency;
+		public float volume;
+		public Waveform waveform;
+		
+		public Harmonic(float frequency, float volume) {
+			this.frequency = frequency;
+			this.volume = volume;
+			this.waveform = Waveform.SINE;
+		}
+		
+		public Harmonic(Waveform wave, float frequency, float volume) {
+			this.waveform = wave;
+			this.frequency = frequency;
+			this.volume = volume;
+		}
+	}
 }
