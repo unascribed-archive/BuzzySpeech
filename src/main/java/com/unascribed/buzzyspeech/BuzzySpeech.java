@@ -37,18 +37,20 @@ public class BuzzySpeech {
 	}
 	
 	private static void run(float volume, float[] samples, byte[] buf, SourceDataLine sdl) {
-		configure(CYCLE.get((counter/10)%CYCLE.size()));
+		configure(CYCLE.get((counter/5000)%CYCLE.size()));
 		
+		int writable = sdl.available();
+		if (writable > samples.length) writable = samples.length;
 		for(Oscillator synth : synths) {
-			synth.genSamples(samples, 0, samples.length, volume);
+			synth.genSamples(samples, 0, writable, volume);
 		}
 		
-		for (int i = 0; i < buf.length; i++) {
+		for (int i = 0; i < writable; i++) {
 			buf[i] = (byte)(samples[i]*127);
 		}
-		sdl.write(buf, 0, buf.length);
+		sdl.write(buf, 0, writable);
 		
-		counter++;
+		counter+= writable;
 	}
 
 	private static void configure(Formant formant) {
