@@ -16,6 +16,7 @@ public class Oscillator {
 	protected float cyclesPerSample;
 	protected float wavePos = 0f;
 	
+	protected Waveform modWave = Waveform.SINE;
 	protected float modFreq = 438.0f;
 	protected float modAmp = 0f;
 	protected float modCycles = 0f;
@@ -32,16 +33,38 @@ public class Oscillator {
 			volumeScramble = Math.max(volumeScramble-volumeDecay, volume);
 		}
 		
-		wavePos = wavePos + cyclesPerSample;
-		modPos = (modPos + modCycles) % 1f;
-		if (mode==Mode.SYNC && wavePos>=1f) modPos = 0f;
-		wavePos = wavePos % 1f;
+		if (mode==Mode.FM) {
+			modPos = (modPos + modCycles) % 1f;
+			float modulatorSample = modWave.getSample(modPos) * modAmp;
+			cyclesPerSample = (frequency/SAMPLE_RATE) + modulatorSample;
+			wavePos = (wavePos + cyclesPerSample) % 1f;
+		} else {
+			wavePos = wavePos + cyclesPerSample;
+			modPos = (modPos + modCycles) % 1f;
+			if (mode==Mode.SYNC && wavePos>=1f) modPos = 0f;
+			wavePos = wavePos % 1f;
+		}
 		
 		return volumeScramble == 0 ? 0 : _nextSample(wavePos)*volumeScramble;
 	}
 	
 	protected float _nextSample(float wavePos) {
-		return (waveform.getSample(wavePos) + waveform.getSample(modPos)) * 0.6f;
+		switch(mode) {
+		case SINGLE:
+		case FM:
+			return waveform.getSample(wavePos);
+		default:
+			return waveform.getSample(wavePos) + waveform.getSample(modPos);
+		//case SYNC:
+		//	return waveform.getSample(modPos) + (waveform.getSample(wavePos)*0.25f);
+		//case DETUNE:
+		//	return waveform.getSample(wavePos) + waveform.getSample(mod)
+		
+		}
+		
+		//if (mode==Mode.SINGLE)return waveform.getSample(wavePos);
+		
+		//return (waveform.getSample(wavePos) + waveform.getSample(modPos)) * 0.6f;
 	}
 
 	public void genSamples(float[] buf, int ofs, int len, float volumeScale) {
@@ -80,9 +103,11 @@ public class Oscillator {
 		this.mode = mode;
 	}
 	
-	public void setModulator(Mode mode, float amp, float frequency) {
+	public void setModulator(Mode mode, Waveform wave, float amp, float frequency) {
 		this.mode = mode;
+		this.modWave = wave;
 		this.modFreq = frequency;
+		this.modAmp = amp;
 		this.modCycles = this.modFreq/SAMPLE_RATE;
 	}
 	

@@ -70,12 +70,12 @@ public class BuzzySpeech {
 			} else {
 				Formant.Harmonic source = formant.harmonics.get(i);
 				Oscillator target = synths.get(i);
-				//target.setFrequency((int)source.frequency);
-				target.setFrequency(440);
+				target.setFrequency((int)source.frequency);
+				//target.setFrequency(220);
 				target.setVolume(source.volume);
 				target.setWaveform(source.waveform);
 				
-				target.setModulator(Oscillator.Mode.SYNC, 10, source.frequency);
+				target.setModulator(Oscillator.Mode.FM, Waveform.SINE, 0.012f, 660);
 			}
 		}
 		
@@ -178,6 +178,7 @@ public class BuzzySpeech {
 			.build();
 	
 	
-	private static final ImmutableList<Formant> CYCLE = ImmutableList.of(A, A, A, A, E, E, E, E, I, I, I, I, O, O, O, O, U, U, U, U, SILENCE, SILENCE, SILENCE, SILENCE, SILENCE, SILENCE, SILENCE, SILENCE );
+	//private static final ImmutableList<Formant> CYCLE = ImmutableList.of(A, A, A, A, E, E, E, E, I, I, I, I, O, O, O, O, U, U, U, U, SILENCE, SILENCE, SILENCE, SILENCE, SILENCE, SILENCE, SILENCE, SILENCE );
 
+	private static final ImmutableList<Formant> CYCLE = ImmutableList.of(NOTE_A4, SILENCE, NOTE_B4, SILENCE, NOTE_C5, SILENCE, NOTE_D5, SILENCE, NOTE_E5, SILENCE, NOTE_B4, SILENCE, NOTE_C5, SILENCE, NOTE_D5, SILENCE);
 }
