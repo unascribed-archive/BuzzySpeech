@@ -70,9 +70,12 @@ public class BuzzySpeech {
 			} else {
 				Formant.Harmonic source = formant.harmonics.get(i);
 				Oscillator target = synths.get(i);
-				target.setFrequency((int)source.frequency);
+				//target.setFrequency((int)source.frequency);
+				target.setFrequency(440);
 				target.setVolume(source.volume);
 				target.setWaveform(source.waveform);
+				
+				target.setModulator(Oscillator.Mode.SYNC, 10, source.frequency);
 			}
 		}
 		
@@ -157,24 +160,24 @@ public class BuzzySpeech {
 			.build();
 	
 	public static final Formant W = Formant.builder()
-			.harmonic(  355, -46.0f) //Lesser peak
-			.harmonic(  820, -38.3f)
-			.harmonic( 1097, -57.0f) //Not a peak (sampled)
-			.harmonic( 1327, -61.0f) //Not a peak (sampled)
-			.harmonic( 1872, -63.9f)
-			.harmonic( 2246, -58.9f)
-			.harmonic( 3039, -61.9f)
-			.harmonic( 3604, -60.4f)
-			.harmonic( 6436, -64.7f)
-			.harmonic(18759, -61.1f)
+			//.harmonic(  355, -46.0f) //Lesser peak
+			//.harmonic(  820, -38.3f)
+			//.harmonic( 1097, -57.0f) //Not a peak (sampled)
+			//.harmonic( 1327, -61.0f) //Not a peak (sampled)
+			//.harmonic( 1872, -63.9f)
+			//.harmonic( 2246, -58.9f)
+			//.harmonic( 3039, -61.9f)
+			//.harmonic( 3604, -60.4f)
+			//.harmonic( 6436, -64.7f)
+			//.harmonic(18759, -61.1f)
 			
-			//.harmonic(450, -18)
-			//.harmonic(844, -13)
-			//.harmonic(2545, -27)
-			//.harmonic(29977, -34)
+			.harmonic(450, -18)
+			.harmonic(844, -13)
+			.harmonic(2545, -27)
+			.harmonic(29977, -34)
 			.build();
 	
 	
-	private static final ImmutableList<Formant> CYCLE = ImmutableList.of(NOTE_A4, SILENCE, NOTE_B4, SILENCE, NOTE_C5, SILENCE, NOTE_D5, SILENCE, NOTE_E5, SILENCE, NOTE_B4, SILENCE, NOTE_C5, SILENCE, NOTE_D5, SILENCE );
+	private static final ImmutableList<Formant> CYCLE = ImmutableList.of(A, A, A, A, E, E, E, E, I, I, I, I, O, O, O, O, U, U, U, U, SILENCE, SILENCE, SILENCE, SILENCE, SILENCE, SILENCE, SILENCE, SILENCE );
 
 }

@@ -16,7 +16,13 @@ public class Oscillator {
 	protected float cyclesPerSample;
 	protected float wavePos = 0f;
 	
+	protected float modFreq = 438.0f;
+	protected float modAmp = 0f;
+	protected float modCycles = 0f;
+	protected float modPos = 0f;
+	
 	private Waveform waveform;
+	private Mode mode = Mode.SINGLE;
 	
 	public float nextSample() {
 		//volume scramble helps prevent clicking and creates something more like an ADSR curve
@@ -26,13 +32,16 @@ public class Oscillator {
 			volumeScramble = Math.max(volumeScramble-volumeDecay, volume);
 		}
 		
-		wavePos = (wavePos + cyclesPerSample) % 1f;
+		wavePos = wavePos + cyclesPerSample;
+		modPos = (modPos + modCycles) % 1f;
+		if (mode==Mode.SYNC && wavePos>=1f) modPos = 0f;
+		wavePos = wavePos % 1f;
 		
 		return volumeScramble == 0 ? 0 : _nextSample(wavePos)*volumeScramble;
 	}
 	
 	protected float _nextSample(float wavePos) {
-		return waveform.getSample(wavePos);
+		return (waveform.getSample(wavePos) + waveform.getSample(modPos)) * 0.6f;
 	}
 
 	public void genSamples(float[] buf, int ofs, int len, float volumeScale) {
@@ -64,5 +73,27 @@ public class Oscillator {
 	
 	public void setWaveform(Waveform waveform) {
 		this.waveform = waveform;
+	}
+	
+	public Mode getMode() { return mode; }
+	public void setMode(Mode mode) {
+		this.mode = mode;
+	}
+	
+	public void setModulator(Mode mode, float amp, float frequency) {
+		this.mode = mode;
+		this.modFreq = frequency;
+		this.modCycles = this.modFreq/SAMPLE_RATE;
+	}
+	
+	public static enum Mode {
+		/** A single pure tone */
+		SINGLE,
+		/** A carrier wave, plus a second wave at a *very* slightly different frequency, often used/percieved as a chorus effect */
+		DETUNE,
+		/** A carrier wave retriggered by a fundamental frequency, causing asymmetries and more complex harmonics */
+		SYNC,
+		/** A carrier wave whose frequency is constantly adjusted by a modulator wave, creating extremely complex, often metallic or anharmonic, tones */
+		FM;
 	}
 }
